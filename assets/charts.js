@@ -1,146 +1,306 @@
 (function() {
   'use strict';
 
-  function initCharts() {
-    var chartIndex = echarts.init(document.getElementById('chartIndex'));
-    var chartFreight = echarts.init(document.getElementById('chartFreight'));
-    var chartUsImport = echarts.init(document.getElementById('chartUsImport'));
+  var chartIndex = echarts.init(document.getElementById('chart-index'));
+  var chartFreight = echarts.init(document.getElementById('chart-freight'));
+  var chartVolume = echarts.init(document.getElementById('chart-volume'));
+  var chartPort = echarts.init(document.getElementById('chart-port'));
 
-    var weeks = [
-      '2026-01-10','2026-01-17','2026-01-24','2026-01-31',
-      '2026-02-07','2026-02-14','2026-02-21','2026-02-28',
-      '2026-03-07','2026-03-14','2026-03-21','2026-03-28',
-      '2026-04-04','2026-04-11','2026-04-18','2026-04-25',
-      '2026-05-02','2026-05-09','2026-05-16','2026-05-23','2026-05-30',
-      '2026-06-06','2026-06-13','2026-06-20'
-    ];
+  var colorPrimary = '#2563eb';
+  var colorSecondary = '#059669';
+  var colorDanger = '#dc2626';
+  var colorWarning = '#d97706';
+  var colorPurple = '#7c3aed';
+  var colorBg = '#f6f8fb';
+  var colorText = '#374151';
 
-    // SCFI 综合指数（周度，基于公开数据与趋势）
-    var scfiData = [
-      2150, 2120, 2080, 2050,
-      1980, 1950, 1920, 1880,
-      2050, 2020, 1980, 1950,
-      1920, 1890, 1875, 1875,
-      1980, 2100, 2218, 2550, 2726,
-      2985, 3122, 3122
-    ];
+  var weeks = [
+    '1/3','1/10','1/17','1/24','1/31',
+    '2/7','2/14','2/21','2/28',
+    '3/7','3/14','3/21','3/28',
+    '4/4','4/11','4/18','4/25',
+    '5/2','5/9','5/16','5/23','5/30',
+    '6/6','6/13','6/20','6/27'
+  ];
 
-    // CCFI 综合指数（周度，基于公开数据与趋势）
-    var ccfiData = [
-      1180, 1170, 1160, 1150,
-      1120, 1110, 1100, 1090,
-      1140, 1130, 1120, 1110,
-      1150, 1180, 1200, 1222,
-      1280, 1350, 1420, 1480, 1520,
-      1560, 1599, 1599
-    ];
+  var scfiData = [
+    1458,1482,1520,1458,1430,
+    1317,1280,1350,1420,
+    1489,1707,1827,1850,
+    1855,1891,1887,1875,
+    1920,2050,2141,2450,2713,
+    2850,3122,3350,3520
+  ];
 
-    var optionIndex = {
-      backgroundColor: 'transparent',
-      tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      legend: { data: ['SCFI', 'CCFI'], bottom: 0 },
-      grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
-      xAxis: { type: 'category', boundaryGap: false, data: weeks, axisLabel: { rotate: 30, fontSize: 10 } },
-      yAxis: [
-        { type: 'value', name: 'SCFI', position: 'left', axisLine: { lineStyle: { color: '#2563eb' } }, splitLine: { lineStyle: { color: '#f0f0f0' } } },
-        { type: 'value', name: 'CCFI', position: 'right', axisLine: { lineStyle: { color: '#16a34a' } }, splitLine: { show: false } }
-      ],
-      series: [
-        { name: 'SCFI', type: 'line', smooth: true, yAxisIndex: 0, data: scfiData, itemStyle: { color: '#2563eb' }, areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(37,99,235,0.2)'},{offset:1,color:'rgba(37,99,235,0)'}]) } },
-        { name: 'CCFI', type: 'line', smooth: true, yAxisIndex: 1, data: ccfiData, itemStyle: { color: '#16a34a' }, lineStyle: { type: 'dashed' } }
-      ]
-    };
+  var ccfiData = [
+    1210,1225,1240,1210,1190,
+    1156,1140,1160,1190,
+    1205,1250,1289,1320,
+    1345,1360,1350,1345,
+    1360,1410,1489,1550,1590,
+    1575,1599,1620,1650
+  ];
 
-    var freightWeeks = [
-      '2026-01-10','2026-01-17','2026-01-24','2026-01-31',
-      '2026-02-07','2026-02-14','2026-02-21','2026-02-28',
-      '2026-03-07','2026-03-14','2026-03-21','2026-03-28',
-      '2026-04-04','2026-04-11','2026-04-18','2026-04-25',
-      '2026-05-02','2026-05-09','2026-05-16','2026-05-23','2026-05-30',
-      '2026-06-06','2026-06-13','2026-06-20'
-    ];
+  var uswcData = [
+    2850,2920,2980,2850,2780,
+    2480,2550,2680,2750,
+    3120,3250,3380,3450,
+    3050,3100,3080,3050,
+    3200,3650,4200,4800,5200,
+    5101,5683,6200,6500
+  ];
 
-    // 美西现货运价 $/FEU（40尺柜）
-    var uswData = [
-      2800, 2780, 2750, 2720,
-      2650, 2620, 2600, 2580,
-      2700, 2680, 2650, 2620,
-      2750, 2800, 2850, 2900,
-      3200, 3600, 4000, 4500, 4800,
-      5000, 5101, 5142
-    ];
+  var usecData = [
+    3650,3720,3780,3650,3580,
+    3280,3350,3480,3550,
+    4050,4180,4320,4400,
+    3980,4020,4000,3980,
+    4150,4650,5450,5900,6300,
+    6321,6873,7200,7500
+  ];
 
-    // 美东现货运价 $/FEU（40尺柜）
-    var useData = [
-      3800, 3780, 3750, 3720,
-      3650, 3620, 3600, 3580,
-      3700, 3680, 3650, 3620,
-      3750, 3800, 3850, 3900,
-      4200, 4600, 5100, 5600, 5900,
-      6100, 6321, 6769
-    ];
+  var volumeMonths = ['1月','2月','3月','4月','5月','6月'];
+  var chinaImportData = [null, null, null, null, 81.6, null];
+  var chinaShareData = [null, null, null, 29.9, 33.6, null];
 
-    var optionFreight = {
-      backgroundColor: 'transparent',
-      tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      legend: { data: ['上海→美西', '上海→美东'], bottom: 0 },
-      grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
-      xAxis: { type: 'category', boundaryGap: false, data: freightWeeks, axisLabel: { rotate: 30, fontSize: 10 } },
-      yAxis: { type: 'value', name: '美元/FEU', splitLine: { lineStyle: { color: '#f0f0f0' } } },
-      series: [
-        { name: '上海→美西', type: 'line', smooth: true, data: uswData, itemStyle: { color: '#2563eb' }, areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(37,99,235,0.15)'},{offset:1,color:'rgba(37,99,235,0)'}]) } },
-        { name: '上海→美东', type: 'line', smooth: true, data: useData, itemStyle: { color: '#dc2626' }, areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(220,38,38,0.15)'},{offset:1,color:'rgba(220,38,38,0)'}]) } }
-      ]
-    };
+  var portWeeks = ['W17','W18','W19','W20','W21','W22','W23','W24','W25','W26'];
+  var laLagunaDwell = [2.5,2.8,3.0,2.6,2.4,2.3,2.5,2.8,3.0,2.9];
+  var customsInspect = [12,15,18,22,28,35,42,45,45,45];
+  var blankSailing = [6,5,5,4,4,3,3,4,4,4];
 
-    var importMonths = ['2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
+  var optionIndex = {
+    backgroundColor: colorBg,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['SCFI','CCFI'], textStyle: { color: colorText }, bottom: 0 },
+    grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: weeks,
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText, rotate: 45, fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      name: '指数点',
+      nameTextStyle: { color: colorText },
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText },
+      splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } }
+    },
+    series: [
+      {
+        name: 'SCFI',
+        type: 'line',
+        data: scfiData,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 3, color: colorPrimary },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            { offset: 0, color: 'rgba(37,99,235,0.25)' },
+            { offset: 1, color: 'rgba(37,99,235,0.02)' }
+          ])
+        }
+      },
+      {
+        name: 'CCFI',
+        type: 'line',
+        data: ccfiData,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 3, color: colorSecondary },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            { offset: 0, color: 'rgba(5,150,105,0.2)' },
+            { offset: 1, color: 'rgba(5,150,105,0.02)' }
+          ])
+        }
+      }
+    ]
+  };
 
-    // 美国自中国进口TEU（月度）
-    var chinaTeu = [
-      1023000, 980000, 950000, 920000, 880000, 900000,
-      850000, 720000, 780000, 800000, 820000, 860000,
-      880000, 900000, 870000, 850000, 800000, 830000,
-      null, null, null, 680000, 816197, null
-    ];
+  var optionFreight = {
+    backgroundColor: colorBg,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['上海→美西','上海→美东'], textStyle: { color: colorText }, bottom: 0 },
+    grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: weeks,
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText, rotate: 45, fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      name: '美元/FEU',
+      nameTextStyle: { color: colorText },
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText },
+      splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } }
+    },
+    series: [
+      {
+        name: '上海→美西',
+        type: 'line',
+        data: uswcData,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 3, color: colorPrimary },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            { offset: 0, color: 'rgba(37,99,235,0.2)' },
+            { offset: 1, color: 'rgba(37,99,235,0.02)' }
+          ])
+        }
+      },
+      {
+        name: '上海→美东',
+        type: 'line',
+        data: usecData,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 3, color: colorDanger },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            { offset: 0, color: 'rgba(220,38,38,0.15)' },
+            { offset: 1, color: 'rgba(220,38,38,0.02)' }
+          ])
+        }
+      }
+    ]
+  };
 
-    // 中国份额 %
-    var sharePct = [
-      38.5, 37.2, 36.0, 35.5, 34.0, 34.5,
-      33.0, 30.0, 31.5, 32.0, 32.5, 33.0,
-      33.5, 34.0, 33.0, 32.5, 31.0, 31.5,
-      null, null, null, 29.9, 33.6, null
-    ];
+  var optionVolume = {
+    backgroundColor: colorBg,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: { data: ['美国自中国进口TEU（万）','中国份额（%）'], textStyle: { color: colorText }, bottom: 0 },
+    grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: volumeMonths,
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '万TEU',
+        nameTextStyle: { color: colorText },
+        axisLine: { lineStyle: { color: '#9ca3af' } },
+        axisLabel: { color: colorText },
+        splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } }
+      },
+      {
+        type: 'value',
+        name: '份额%',
+        min: 0,
+        max: 50,
+        nameTextStyle: { color: colorText },
+        axisLine: { lineStyle: { color: '#9ca3af' } },
+        axisLabel: { color: colorText, formatter: '{value}%' },
+        splitLine: { show: false }
+      }
+    ],
+    series: [
+      {
+        name: '美国自中国进口TEU（万）',
+        type: 'bar',
+        data: chinaImportData,
+        itemStyle: { color: colorPrimary, borderRadius: [4,4,0,0] },
+        barWidth: '40%',
+        label: { show: true, position: 'top', formatter: function(p){ return p.value != null ? p.value : '待发布'; }, color: colorText, fontSize: 11 }
+      },
+      {
+        name: '中国份额（%）',
+        type: 'line',
+        yAxisIndex: 1,
+        data: chinaShareData,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 8,
+        lineStyle: { width: 3, color: colorWarning },
+        itemStyle: { color: colorWarning },
+        label: { show: true, position: 'top', formatter: function(p){ return p.value != null ? p.value + '%' : ''; }, color: colorWarning, fontSize: 11 }
+      }
+    ]
+  };
 
-    var optionUsImport = {
-      backgroundColor: 'transparent',
-      tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      legend: { data: ['美国自中国进口TEU', '中国份额(%)'], bottom: 0 },
-      grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
-      xAxis: { type: 'category', data: importMonths, axisLabel: { rotate: 30, fontSize: 10 } },
-      yAxis: [
-        { type: 'value', name: 'TEU', position: 'left', axisLine: { lineStyle: { color: '#2563eb' } }, splitLine: { lineStyle: { color: '#f0f0f0' } } },
-        { type: 'value', name: '份额%', min: 20, max: 45, position: 'right', axisLine: { lineStyle: { color: '#d97706' } }, splitLine: { show: false } }
-      ],
-      series: [
-        { name: '美国自中国进口TEU', type: 'bar', data: chinaTeu, itemStyle: { color: '#2563eb', borderRadius: [4,4,0,0] } },
-        { name: '中国份额(%)', type: 'line', yAxisIndex: 1, data: sharePct, itemStyle: { color: '#d97706' }, lineStyle: { width: 3 }, symbol: 'circle', symbolSize: 6 }
-      ]
-    };
+  var optionPort = {
+    backgroundColor: colorBg,
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['LA/LB滞港天数','海关查验率(%)','跨太平洋空班数'], textStyle: { color: colorText }, bottom: 0 },
+    grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: portWeeks,
+      axisLine: { lineStyle: { color: '#9ca3af' } },
+      axisLabel: { color: colorText }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '天数 / 班次',
+        nameTextStyle: { color: colorText },
+        axisLine: { lineStyle: { color: '#9ca3af' } },
+        axisLabel: { color: colorText },
+        splitLine: { lineStyle: { color: '#e5e7eb', type: 'dashed' } }
+      },
+      {
+        type: 'value',
+        name: '查验率%',
+        min: 0,
+        max: 60,
+        nameTextStyle: { color: colorText },
+        axisLine: { lineStyle: { color: '#9ca3af' } },
+        axisLabel: { color: colorText, formatter: '{value}%' },
+        splitLine: { show: false }
+      }
+    ],
+    series: [
+      {
+        name: 'LA/LB滞港天数',
+        type: 'line',
+        data: laLagunaDwell,
+        smooth: true,
+        symbol: 'circle',
+        lineStyle: { width: 2, color: colorPrimary },
+        itemStyle: { color: colorPrimary }
+      },
+      {
+        name: '海关查验率(%)',
+        type: 'line',
+        yAxisIndex: 1,
+        data: customsInspect,
+        smooth: true,
+        symbol: 'diamond',
+        lineStyle: { width: 3, color: colorDanger },
+        itemStyle: { color: colorDanger },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0,0,0,1,[
+            { offset: 0, color: 'rgba(220,38,38,0.15)' },
+            { offset: 1, color: 'rgba(220,38,38,0.02)' }
+          ])
+        }
+      },
+      {
+        name: '跨太平洋空班数',
+        type: 'bar',
+        data: blankSailing,
+        itemStyle: { color: colorWarning, borderRadius: [4,4,0,0], opacity: 0.7 },
+        barWidth: '30%'
+      }
+    ]
+  };
 
-    chartIndex.setOption(optionIndex);
-    chartFreight.setOption(optionFreight);
-    chartUsImport.setOption(optionUsImport);
+  chartIndex.setOption(optionIndex);
+  chartFreight.setOption(optionFreight);
+  chartVolume.setOption(optionVolume);
+  chartPort.setOption(optionPort);
 
-    window.addEventListener('resize', function() {
-      chartIndex.resize();
-      chartFreight.resize();
-      chartUsImport.resize();
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCharts);
-  } else {
-    initCharts();
-  }
+  window.addEventListener('resize', function() {
+    chartIndex.resize();
+    chartFreight.resize();
+    chartVolume.resize();
+    chartPort.resize();
+  });
 })();
