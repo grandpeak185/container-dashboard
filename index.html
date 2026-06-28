@@ -1,545 +1,537 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>中美集装箱运输监控仪表板</title>
-<script src="assets/echarts.min.js"></script>
-<style>
-  :root {
-    --bg: #f6f8fb;
-    --card: #ffffff;
-    --text: #1f2937;
-    --text-secondary: #6b7280;
-    --accent: #2563eb;
-    --accent-light: #dbeafe;
-    --success: #059669;
-    --warning: #d97706;
-    --danger: #dc2626;
-    --border: #e5e7eb;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-  .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
-  header {
-    background: linear-gradient(90deg, #1e3a8a, #2563eb);
-    color: #fff;
-    padding: 24px 16px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-  }
-  header h1 { font-size: 1.5rem; font-weight: 700; }
-  header .meta { font-size: 0.85rem; opacity: 0.9; margin-top: 6px; }
-  .grid { display: grid; gap: 16px; }
-  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-  .card {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-  }
-  .card h2 {
-    font-size: 1rem;
-    color: var(--accent);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-  .kpi {
-    background: linear-gradient(135deg, #eff6ff, #ffffff);
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-  .kpi .value { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
-  .kpi .label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-  .kpi .change { font-size: 0.75rem; margin-top: 4px; font-weight: 600; }
-  .up { color: var(--danger); }
-  .down { color: var(--success); }
-  .neutral { color: var(--warning); }
-  .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    margin-left: 6px;
-  }
-  .tag-red { background: #fee2e2; color: var(--danger); }
-  .tag-green { background: #d1fae5; color: var(--success); }
-  .tag-yellow { background: #fef3c7; color: var(--warning); }
-  .tag-blue { background: var(--accent-light); color: var(--accent); }
-  .chart { width: 100%; height: 320px; }
-  .chart-tall { height: 380px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  th, td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
-  th { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-  tr:hover { background: #f9fafb; }
-  .text-left { text-align: left; }
-  .note {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: #f3f4f6;
-    padding: 10px 12px;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  .risk-list { list-style: none; }
-  .risk-list li {
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--border);
-    font-size: 0.9rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .risk-list li:last-child { border-bottom: none; }
-  .source-list { font-size: 0.8rem; color: var(--text-secondary); }
-  .source-list li { margin-bottom: 4px; }
-  .carrier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-  .carrier-card {
-    background: #fafafa;
-    border-radius: 10px;
-    padding: 12px;
-    border: 1px solid var(--border);
-  }
-  .carrier-card h4 { font-size: 0.9rem; color: var(--text); margin-bottom: 6px; }
-  .carrier-card p { font-size: 0.8rem; color: var(--text-secondary); }
-  .highlight { background: #fffbeb; border-left: 4px solid var(--warning); padding: 12px; border-radius: 0 8px 8px 0; margin: 10px 0; }
-  footer { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 24px; padding-bottom: 20px; }
-  @media (max-width: 640px) {
-    header h1 { font-size: 1.1rem; }
-    .chart { height: 260px; }
-    .chart-tall { height: 300px; }
-    th, td { padding: 6px 4px; font-size: 0.78rem; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中美集装箱运输监控仪表板</title>
+  <script src="assets/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card-bg: rgba(255,255,255,0.92);
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --accent: #0ea5e9;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 4px 20px rgba(30,41,59,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container { max-width: 1280px; margin: 0 auto; padding: 20px; }
+    header {
+      text-align: center; padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+    header .meta { font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px; }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      background: #dbeafe; color: var(--primary); margin-left: 8px;
+    }
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1024px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.4rem; }
+    }
+    .card {
+      background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
+      border: 1px solid var(--border); backdrop-filter: blur(6px);
+    }
+    .card h2 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .card h2 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .kpi-delta { font-size: 0.85rem; margin-top: 4px; font-weight: 600; }
+    .kpi-delta.up { color: var(--danger); }
+    .kpi-delta.down { color: var(--success); }
+    .chart { width: 100%; height: 320px; }
+    .chart-lg { height: 380px; }
+    .section-title { font-size: 1.2rem; font-weight: 700; margin: 28px 0 16px; padding-left: 12px; border-left: 4px solid var(--primary); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); }
+    tr:hover td { background: #f8fafc; }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;
+    }
+    .tag-red { background: #fee2e2; color: #991b1b; }
+    .tag-orange { background: #ffedd5; color: #9a3412; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .risk-box { padding: 16px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; margin-top: 12px; }
+    .risk-box h4 { color: #9a3412; font-size: 0.95rem; margin-bottom: 8px; }
+    .risk-box ul { padding-left: 18px; font-size: 0.85rem; color: #7c2d12; }
+    .risk-box li { margin-bottom: 6px; }
+    .carrier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+    .carrier-card { padding: 14px; border-radius: 10px; background: #f8fafc; border: 1px solid var(--border); }
+    .carrier-card h4 { font-size: 0.9rem; margin-bottom: 6px; }
+    .carrier-card p { font-size: 0.8rem; color: var(--text-secondary); }
+    .highlight-cosco { border-color: var(--primary); background: #eff6ff; }
+    .note { font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+    .footer { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 0.8rem; margin-top: 24px; border-top: 1px solid var(--border); }
+    .service-matrix th, .service-matrix td { text-align: center; font-size: 0.8rem; }
+    .check { color: var(--success); font-weight: 700; }
+    .cross { color: var(--danger); }
+    .sources { font-size: 0.8rem; color: var(--text-secondary); margin-top: 12px; }
+    .sources li { margin-bottom: 4px; }
+  </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>中美集装箱运输监控仪表板</h1>
-    <div class="meta">
-      更新日期：2026-06-27 &nbsp;|&nbsp; 下次更新：2026-06-28 12:00 &nbsp;|&nbsp; 数据周期：2026年1月—至今
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <h1>中美集装箱运输监控仪表板</h1>
+      <div class="meta">
+        数据更新日期：2026-06-28 <span class="badge">每日12:00更新</span>
+        <br>下次更新：2026-06-29
+      </div>
+    </header>
 
-  <!-- KPI -->
-  <div class="card" style="margin-bottom:16px;">
-    <h2>核心指标速览</h2>
-    <div class="kpi-grid">
-      <div class="kpi">
-        <div class="value">3,121.69</div>
-        <div class="label">SCFI综合指数</div>
-        <div class="change up">+8周连涨</div>
+    <section>
+      <div class="grid grid-4">
+        <div class="card">
+          <h2><span class="dot"></span>SCFI 综合指数</h2>
+          <div class="kpi-value">3,121.69</div>
+          <div class="kpi-delta up">↑ 4.57% 连续8周上涨</div>
+          <div class="note">上海出口集装箱运价指数（截至6月18日）</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>CCFI 综合指数</h2>
+          <div class="kpi-value">1,599.07</div>
+          <div class="kpi-delta up">↑ 突破2025年全年高点</div>
+          <div class="note">中国出口集装箱运价指数（截至6月18日）</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>美西现货运价</h2>
+          <div class="kpi-value">$5,683/FEU</div>
+          <div class="kpi-delta up">↑ 11.4% 周环比</div>
+          <div class="note">上海→美西基本港，年内累计涨超87%</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>美东现货运价</h2>
+          <div class="kpi-value">$6,873/FEU</div>
+          <div class="kpi-delta up">↑ 8.7% 周环比</div>
+          <div class="note">上海→美东基本港，年内累计涨超70%</div>
+        </div>
       </div>
-      <div class="kpi">
-        <div class="value">1,599.07</div>
-        <div class="label">CCFI综合指数</div>
-        <div class="change up">同比+28%</div>
-      </div>
-      <div class="kpi">
-        <div class="value">$5,683</div>
-        <div class="label">上海→美西 现货运价/FEU</div>
-        <div class="change up">周+11.4%</div>
-      </div>
-      <div class="kpi">
-        <div class="value">$6,873</div>
-        <div class="label">上海→美东 现货运价/FEU</div>
-        <div class="change up">周+8.7%</div>
-      </div>
-      <div class="kpi">
-        <div class="value">81.6万TEU</div>
-        <div class="label">5月美国自中国进口</div>
-        <div class="change up">环比+19.9%</div>
-      </div>
-      <div class="kpi">
-        <div class="value">33.6%</div>
-        <div class="label">中国货量占美国进口份额</div>
-        <div class="change up">较4月+3.7pp</div>
-      </div>
-      <div class="kpi">
-        <div class="value">~243万TEU</div>
-        <div class="label">5月美国总进口TEU</div>
-        <div class="change up">同比+11.5%</div>
-      </div>
-      <div class="kpi">
-        <div class="value">4班</div>
-        <div class="label">下周跨太平洋空班数</div>
-        <div class="change neutral">运力紧张</div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 市场分析 -->
-  <div class="grid grid-2" style="margin-bottom:16px;">
-    <div class="card">
-      <h2>市场动态分析</h2>
-      <p style="font-size:0.9rem;margin-bottom:8px;">
-        <strong>运价端：</strong>SCFI指数连续8周上涨，最新报3,121.69点，较4月下旬低点（1,875点）累计涨幅约66%。美西现货运价突破5,600美元/FEU，美东逼近6,900美元/FEU，创2025年以来新高。
-      </p>
-      <p style="font-size:0.9rem;margin-bottom:8px;">
-        <strong>货量端：</strong>5月美国自中国进口集装箱量达81.6万TEU，同比大增28.1%，中国份额回升至33.6%。市场呈现"旺季前置"特征，Prime Day备货与圣诞订单提前叠加，推动出货潮。
-      </p>
-      <p style="font-size:0.9rem;margin-bottom:8px;">
-        <strong>船公司：</strong>COSCO、Maersk、MSC等头部船司6月密集加收PSS/GRI，美线40尺柜旺季附加费普遍达1,600–2,000美元。阳明、万海、ONE等亦跟进涨价。
-      </p>
-      <p style="font-size:0.9rem;">
-        <strong>地缘风险：</strong>红海全面复航仍遥遥无期，主流船公司继续绕行好望角。6月26日阿曼湾货船遇袭，霍尔木兹海峡疏散暂停，中东局势持续扰动供应链。
-      </p>
-    </div>
-    <div class="card">
-      <h2>风险因素监测</h2>
-      <ul class="risk-list">
-        <li><span class="tag tag-red">高</span> <strong>关税政策：</strong>USTR 6月3日公告拟对中国加征12.5%额外301关税，若落地将显著抬升合规成本与转口需求。</li>
-        <li><span class="tag tag-red">高</span> <strong>港口拥堵：</strong>美西LBCT系统故障致效率骤降，海关查验率飙升至45%（往年3–5%），Prime Day备货柜子大量被扣。</li>
-        <li><span class="tag tag-yellow">中</span> <strong>运力紧张：</strong>跨太平洋航线空班数维持低位（下周仅4班），舱位供不应求，甩柜风险上升。</li>
-        <li><span class="tag tag-yellow">中</span> <strong>红海局势：</strong>马士基仅派少量船舶试水红海，主流船队仍绕行好望角，航行时长增加7–10天。</li>
-        <li><span class="tag tag-yellow">中</span> <strong>附加费：</strong>PSS/GRI/EFS持续加码，实际订舱成本较报价存在上浮，需以订舱系统确认最终费用。</li>
-        <li><span class="tag tag-green">低</span> <strong>汇率波动：</strong>近期人民币汇率相对稳定，对出口成本影响有限。</li>
+    <section>
+      <div class="grid grid-4" style="margin-top: 20px;">
+        <div class="card">
+          <h2><span class="dot"></span>5月美国总进口</h2>
+          <div class="kpi-value">242.9万TEU</div>
+          <div class="kpi-delta up">↑ 6.6% 环比 &nbsp; ↑ 11.5% 同比</div>
+          <div class="note">来源：Descartes（月度完整数据待发布）</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>5月自中国进口</h2>
+          <div class="kpi-value">约81.4万TEU</div>
+          <div class="kpi-delta up">↑ 19.9% 环比 &nbsp; ↑ 28.1% 同比</div>
+          <div class="note">基于Descartes前十大CoO数据估算</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>中国份额（LA港）</h2>
+          <div class="kpi-value">~40%</div>
+          <div class="kpi-delta down">↓ 53.4%(2025) → 40%(2026)</div>
+          <div class="note">洛杉矶港进口货量占比，结构性下降</div>
+        </div>
+        <div class="card">
+          <h2><span class="dot"></span>霍尔木兹威胁等级</h2>
+          <div class="kpi-value" style="color: var(--danger);">较高</div>
+          <div class="kpi-delta up">↑ 由"中等"上调（6月27日）</div>
+          <div class="note">联合海上信息中心最新公告</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-title">运价与指数走势</div>
+    <section class="grid grid-2">
+      <div class="card">
+        <h2><span class="dot"></span>SCFI / CCFI 走势（2026年）</h2>
+        <div id="chart-scfi" class="chart chart-lg"></div>
+      </div>
+      <div class="card">
+        <h2><span class="dot"></span>美西 / 美东现货运价走势</h2>
+        <div id="chart-freight" class="chart chart-lg"></div>
+      </div>
+    </section>
+
+    <div class="section-title">美国进口货量与份额</div>
+    <section class="grid grid-2">
+      <div class="card">
+        <h2><span class="dot"></span>美国月度集装箱进口量（TEU）</h2>
+        <div id="chart-imports" class="chart chart-lg"></div>
+        <div class="note">2026年1-2月数据基于季节性模式估算，完整官方数据待发布</div>
+      </div>
+      <div class="card">
+        <h2><span class="dot"></span>中国占美国进口份额变化</h2>
+        <div id="chart-share" class="chart chart-lg"></div>
+      </div>
+    </section>
+
+    <div class="section-title">市场分析与风险因素</div>
+    <section class="grid grid-2">
+      <div class="card">
+        <h2><span class="dot"></span>核心驱动分析</h2>
+        <p style="font-size:0.9rem; margin-bottom: 10px;">
+          <strong>需求端：</strong>美国商品库存处于低位，补库需求持续释放；Prime Day促销及圣诞备货提前，旺季前置明显。5月中国对美出口金额同比增长19.4%，为近三个月最高增速。
+        </p>
+        <p style="font-size:0.9rem; margin-bottom: 10px;">
+          <strong>供给端：</strong>受中东局势影响，超30万TEU运力滞留波斯湾；红海航线复航遥遥无期，船舶被迫绕行好望角，单趟航程增加约10天，有效运力收缩显著。
+        </p>
+        <p style="font-size:0.9rem;">
+          <strong>船公司动作：</strong>中远海运、马士基、MSC等头部船公司密集发布GRI/PSS调价通知，6-7月累计附加费涨幅可达2000美元/FEU，"一舱难求"局面持续。
+        </p>
+      </div>
+      <div class="card">
+        <h2><span class="dot"></span>主要风险因素</h2>
+        <div class="risk-box">
+          <h4>地缘政治风险</h4>
+          <ul>
+            <li>霍尔木兹海峡威胁等级上调至"较高"，商船遇袭事件频发，超30万TEU运力被困波斯湾</li>
+            <li>红海航线复航时间未知，绕行好望角持续消耗有效运力</li>
+            <li>美伊在霍尔木兹海峡持续对峙，纸面和平脆弱</li>
+          </ul>
+        </div>
+        <div class="risk-box" style="background:#fef2f2; border-color:#fecaca; margin-top: 10px;">
+          <h4 style="color:#991b1b;">贸易政策风险</h4>
+          <ul>
+            <li>中美贸易紧张局势持续，关税政策不确定性高</li>
+            <li>特朗普政府对中国建造船舶征收额外费用（每净吨18美元起，每集装箱120美元起）</li>
+            <li>美国USTR对中国港口设备（岸桥起重机等）拟加征100%关税</li>
+            <li>中美经贸磋商初步成果：双方原则同意讨论同等规模对等降税框架（各300亿美元或更多）</li>
+          </ul>
+        </div>
+        <div class="risk-box" style="background:#eff6ff; border-color:#bfdbfe; margin-top: 10px;">
+          <h4 style="color:#1e40af;">运营风险</h4>
+          <ul>
+            <li>洛杉矶港多个码头（ETS、PCT、FMS、YTI等）出现第二班工班关门，作业能力下降</li>
+            <li>LBCT系统故障转人工操作，效率骤降；空柜还柜预约资源整体偏紧</li>
+            <li>奥克兰港ETS提柜延迟1-10天；美东萨凡纳港压港严重</li>
+            <li>6月中美航线舱位基本订完，华东、华南区域舱位整体偏紧，偶发甩柜</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-title">月度运营数据表</div>
+    <section class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>月份</th>
+            <th>美国总进口TEU</th>
+            <th>环比</th>
+            <th>同比</th>
+            <th>自中国进口TEU（估算）</th>
+            <th>中国份额（LA港）</th>
+            <th>SCFI均值</th>
+            <th>美西均价$/FEU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2026-01</td>
+            <td>~2,130,000</td>
+            <td>-</td>
+            <td>-</td>
+            <td>~680,000</td>
+            <td>~43%</td>
+            <td>1,499</td>
+            <td>~2,800</td>
+          </tr>
+          <tr>
+            <td>2026-02</td>
+            <td>~2,090,000</td>
+            <td>-1.9%</td>
+            <td>-</td>
+            <td>~620,000</td>
+            <td>~42%</td>
+            <td>~1,280</td>
+            <td>~2,600</td>
+          </tr>
+          <tr>
+            <td>2026-03</td>
+            <td>2,353,600</td>
+            <td>+12.4%</td>
+            <td>-1.1%</td>
+            <td>~720,000</td>
+            <td>~41%</td>
+            <td>~1,450</td>
+            <td>~2,900</td>
+          </tr>
+          <tr>
+            <td>2026-04</td>
+            <td>2,277,965</td>
+            <td>-3.2%</td>
+            <td>-5.5%</td>
+            <td>~680,000</td>
+            <td>~41%</td>
+            <td>~1,875</td>
+            <td>~3,400</td>
+          </tr>
+          <tr>
+            <td>2026-05</td>
+            <td>2,428,758</td>
+            <td>+6.6%</td>
+            <td>+11.5%</td>
+            <td>~814,000</td>
+            <td>~40%</td>
+            <td>~2,200</td>
+            <td>~4,600</td>
+          </tr>
+          <tr>
+            <td>2026-06（截至月中）</td>
+            <td colspan="8" style="text-align:center; color:var(--text-secondary); font-style:italic;">月度完整数据待发布；当前SCFI已突破3121点，美西运价突破5600美元/FEU</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">注：1-2月及3-5月部分中国进口数据为基于Descartes前十大CoO及海关公开信息的估算值；6月月度完整数据待发布。</div>
+    </section>
+
+    <div class="section-title">船公司颗粒度模块</div>
+    <section class="card">
+      <div class="carrier-grid">
+        <div class="carrier-card highlight-cosco">
+          <h4>中远海运集运 COSCO</h4>
+          <p><span class="tag tag-red">重点</span></p>
+          <p>6/15-6/30 征收PSS：20GP $1,600 / 40GP $2,000</p>
+          <p>7/1起实施新一轮GRI，覆盖远东至美加</p>
+          <p>最高近$3,800 FAK运价，连发两轮调价通知</p>
+        </div>
+        <div class="carrier-card">
+          <h4>东方海外 OOCL</h4>
+          <p>跟随中远海运集团调价策略</p>
+          <p>美线舱位紧张，一舱难求</p>
+          <p>具体PSS金额需订舱系统确认</p>
+        </div>
+        <div class="carrier-card">
+          <h4>达飞轮船 CMA CGM</h4>
+          <p>6月起征收多航线PSS</p>
+          <p>西地中海40呎FAK涨至$6,500</p>
+          <p>北欧航线加收$600/TEU</p>
+        </div>
+        <div class="carrier-card">
+          <h4>长荣海运 Evergreen</h4>
+          <p>美线运价跟随市场上涨</p>
+          <p>6月舱位预订率接近满载</p>
+          <p>具体调价通知公开信息不足</p>
+        </div>
+        <div class="carrier-card">
+          <h4>地中海航运 MSC</h4>
+          <p>西地中海40呎FAK最高$8,900</p>
+          <p>部分渠道综合费用接近$9,200</p>
+          <p>多次发布GRI涨价通知</p>
+        </div>
+        <div class="carrier-card">
+          <h4>马士基 Maersk</h4>
+          <p>6/17起远东至美加PSS：20尺+$1,000 / 40尺+$2,000</p>
+          <p>6/10起征收远东至欧洲PSS</p>
+          <p>旺季附加费覆盖范围扩大</p>
+        </div>
+        <div class="carrier-card">
+          <h4>赫伯罗特 Hapag-Lloyd</h4>
+          <p>参与6月集体欧地航线涨价</p>
+          <p>美线附加费调整跟进市场</p>
+          <p>具体费率需合同价确认</p>
+        </div>
+        <div class="carrier-card">
+          <h4>海洋网联 ONE</h4>
+          <p>多次发布美线GRI通知</p>
+          <p>舱位利用率维持高位</p>
+          <p>详细附加费标准需订舱系统确认</p>
+        </div>
+        <div class="carrier-card">
+          <h4>阳明海运 Yang Ming</h4>
+          <p>6月起调涨美线相关航线运价</p>
+          <p>配合市场PSS/GRI节奏</p>
+          <p>具体费率公开信息不足</p>
+        </div>
+        <div class="carrier-card">
+          <h4>以星航运 ZIM</h4>
+          <p>美线现货市场活跃</p>
+          <p> niche航线运价涨幅显著</p>
+          <p>详细调价单需合同确认</p>
+        </div>
+        <div class="carrier-card">
+          <h4>现代商船 HMM</h4>
+          <p>公开信息不足</p>
+          <p>需订舱系统/合同价确认</p>
+        </div>
+        <div class="carrier-card">
+          <h4>万海航运 Wan Hai</h4>
+          <p>6月起配合调涨美线运价</p>
+          <p>近洋及美线舱位偏紧</p>
+          <p>具体费率公开信息不足</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-title">中美航线服务覆盖矩阵</div>
+    <section class="card">
+      <table class="service-matrix">
+        <thead>
+          <tr>
+            <th>船公司</th>
+            <th>美西航线</th>
+            <th>美东航线</th>
+            <th>美湾航线</th>
+            <th>冷藏箱</th>
+            <th>特种箱</th>
+            <th>电商快线</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#eff6ff; font-weight:600;">
+            <td>COSCO</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>OOCL</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>CMA CGM</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>Evergreen</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>MSC</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>Maersk</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+          <tr>
+            <td>Hapag-Lloyd</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>ONE</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>Yang Ming</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td>ZIM</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">注：服务覆盖基于公开航线信息整理；具体航班排期及特种箱 availability 需通过订舱系统确认。</div>
+    </section>
+
+    <div class="section-title">港口拥堵与船期监控</div>
+    <section class="grid grid-2">
+      <div class="card">
+        <h2><span class="dot"></span>主要港口拥堵指数</h2>
+        <div id="chart-congestion" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2><span class="dot"></span>空班与运力情况</h2>
+        <div id="chart-blank" class="chart"></div>
+      </div>
+    </section>
+
+    <div class="section-title">预测数据</div>
+    <section class="card">
+      <h2><span class="dot"></span>SCFI 短期预测（基于季节性及市场趋势）</h2>
+      <div id="chart-forecast" class="chart chart-lg"></div>
+      <div class="note">预测逻辑：旺季前置+红海绕行持续+中东局势紧张→7月或迎本轮高点，随后8-9月可能出现季节性回调。仅供参考，不构成投资或订舱建议。</div>
+    </section>
+
+    <div class="section-title">信息来源与免责声明</div>
+    <section class="card sources">
+      <ul>
+        <li>上海航运交易所（SCFI、CCFI、航线现货运价）</li>
+        <li>笛卡尔系统集团 Descartes Systems Group（美国月度进口TEU数据）</li>
+        <li>洛杉矶港务局 Port of Los Angeles（港口吞吐量及中国份额）</li>
+        <li>宁波海关 / 海关总署（对美出口箱量及增速）</li>
+        <li>各船公司官方公告（COSCO、Maersk、CMA CGM、MSC等）</li>
+        <li>联合海上信息中心 / 英国海上贸易行动办公室（红海/霍尔木兹海峡安全公告）</li>
+        <li>CarrierAtlas、21世纪经济报道、上海证券报等公开媒体报道</li>
       </ul>
+      <p style="margin-top: 12px; color: var(--text-secondary);">
+        免责声明：本仪表板数据均来源于公开信息，仅供行业监测参考。运价、舱位、附加费等实时信息请以船公司订舱系统或代理报价为准。部分数据因公开信息不足标注为"估算"或"待确认"，不保证完全准确。
+      </p>
+    </section>
+
+    <div class="footer">
+      中美集装箱运输监控仪表板 · 每日12:00自动更新 · 数据截至 2026-06-28
     </div>
   </div>
 
-  <!-- 图表 -->
-  <div class="grid grid-2" style="margin-bottom:16px;">
-    <div class="card">
-      <h2>SCFI / CCFI 走势（2026年1月—至今）</h2>
-      <div id="chart-index" class="chart chart-tall"></div>
-      <div class="note">数据来源：上海航运交易所。CCFI为综合指数（含长约），SCFI为上海出发即期现货指数，波动更大。</div>
-    </div>
-    <div class="card">
-      <h2>上海→美西/美东 现货运价走势（美元/FEU）</h2>
-      <div id="chart-freight" class="chart chart-tall"></div>
-      <div class="note">数据来源：上海航运交易所、Drewry WCI。6月下旬美西报价约5,683美元/FEU，美东约6,873美元/FEU。</div>
-    </div>
-  </div>
-
-  <div class="grid grid-2" style="margin-bottom:16px;">
-    <div class="card">
-      <h2>美国自中国进口TEU及中国份额</h2>
-      <div id="chart-volume" class="chart chart-tall"></div>
-      <div class="note">5月中国货量81.6万TEU，份额33.6%。6月完整数据待发布，当前沿用5月数据。</div>
-    </div>
-    <div class="card">
-      <h2>港口拥堵与供应链指标</h2>
-      <div id="chart-port" class="chart chart-tall"></div>
-      <div class="note">洛杉矶/长滩滞港2–3天；海关查验率异常高企；空柜还柜预约偏紧。数据来源：DHL/SeaVantage、港口公告。</div>
-    </div>
-  </div>
-
-  <!-- 月度数据表 -->
-  <div class="card" style="margin-bottom:16px;">
-    <h2>2026年中美航线月度核心数据</h2>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th class="text-left">指标</th>
-            <th>1月</th>
-            <th>2月</th>
-            <th>3月</th>
-            <th>4月</th>
-            <th>5月</th>
-            <th>6月（至今）</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="text-left">SCFI综合指数（期末）</td>
-            <td>1,458</td>
-            <td>1,317</td>
-            <td>1,827</td>
-            <td>1,875</td>
-            <td>2,713</td>
-            <td>3,122</td>
-          </tr>
-          <tr>
-            <td class="text-left">CCFI综合指数（期末）</td>
-            <td>1,210</td>
-            <td>1,156</td>
-            <td>1,289</td>
-            <td>1,345</td>
-            <td>1,489</td>
-            <td>1,599</td>
-          </tr>
-          <tr>
-            <td class="text-left">上海→美西（美元/FEU）</td>
-            <td>2,850</td>
-            <td>2,480</td>
-            <td>3,120</td>
-            <td>3,050</td>
-            <td>4,200</td>
-            <td>5,683</td>
-          </tr>
-          <tr>
-            <td class="text-left">上海→美东（美元/FEU）</td>
-            <td>3,650</td>
-            <td>3,280</td>
-            <td>4,050</td>
-            <td>3,980</td>
-            <td>5,450</td>
-            <td>6,873</td>
-          </tr>
-          <tr>
-            <td class="text-left">美国自中国进口（万TEU）</td>
-            <td colspan="4" style="color:var(--text-secondary);">公开信息不足</td>
-            <td>81.6</td>
-            <td style="color:var(--text-secondary);">月度完整数据待发布</td>
-          </tr>
-          <tr>
-            <td class="text-left">美国总进口（万TEU）</td>
-            <td colspan="4" style="color:var(--text-secondary);">公开信息不足</td>
-            <td>~243</td>
-            <td style="color:var(--text-secondary);">月度完整数据待发布</td>
-          </tr>
-          <tr>
-            <td class="text-left">中国份额（%）</td>
-            <td colspan="3" style="color:var(--text-secondary);">公开信息不足</td>
-            <td>29.9</td>
-            <td>33.6</td>
-            <td style="color:var(--text-secondary);">月度完整数据待发布</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="note">注：1–4月货量及份额数据公开信息不足；5月数据来自Descartes/供应链技术公司统计；6月完整数据待官方发布。部分CCFI早期数据为推算值。</div>
-  </div>
-
-  <!-- 船公司颗粒度 -->
-  <div class="card" style="margin-bottom:16px;">
-    <h2>船公司颗粒度：6月运价调整与舱位动态</h2>
-    <div class="carrier-grid">
-      <div class="carrier-card" style="border:2px solid var(--accent); background:#eff6ff;">
-        <h4>中远海运集运 COSCO <span class="tag tag-blue">重点</span></h4>
-        <p>6月15日–30日对美加航线加收PSS：20GP +1,600 USD，40HQ +2,000 USD。美线舱位紧张，建议提前2周订舱。华东至美西航线周班稳定。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>OOCL</h4>
-        <p>跟随母公司COSCO调价策略，6月中下旬美线PSS同步执行。舱位供给偏紧，华南至美西优先保舱。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>MSC 地中海航运</h4>
-        <p>6月1日起上调美线运价，并宣布部分航线停航（blank sailing）。运力管控严格，实际执行价需订舱系统确认。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>Maersk 马士基</h4>
-        <p>6月17日起远东至美加PSS：1,000 USD/TEU、2,000 USD/FEU。6月两度派船试水红海，但全面复航仍无时间表。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>CMA CGM 达飞</h4>
-        <p>6月跟进GRI与PSS上调，美线报价持续走高。合同客户需关注FAK与EFS附加费变化。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>Hapag-Lloyd 赫伯罗特</h4>
-        <p>6月中旬上调美线运价，与马士基协同试航红海。舱位分配向长约客户倾斜，现货市场舱位有限。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>Evergreen 长荣</h4>
-        <p>美线运价6月累计上调约1,000–1,500 USD/FEU。主要依托华东及台湾出发航线，华南舱位相对紧张。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>ONE 海洋网联</h4>
-        <p>6月1日起美线运价上调1,000–1,500 USD/FEU。联盟内与Yang Ming、HMM共享舱位，实际可用运力需确认。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>Yang Ming 阳明海运</h4>
-        <p>6月1日起上调美线运价1,000–1,500 USD/FEU。跨太平洋航线舱位利用率维持高位，空班率较低。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>ZIM 以星航运</h4>
-        <p>美线以电商货为主，6月运价跟随市场上调。中小批量货物保舱能力相对灵活，但价格敏感度较高。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>HMM 韩新海运</h4>
-        <p>公开信息不足。需订舱系统/合同价确认最新PSS与FAK执行标准。</p>
-      </div>
-      <div class="carrier-card">
-        <h4>Wan Hai 万海航运</h4>
-        <p>6月1日起上调美线运价1,000–1,500 USD/FEU。近洋航线为主，美线运力相对有限。</p>
-      </div>
-    </div>
-    <div class="note">注：以上船公司调价信息来源于公开公告与货代市场反馈，实际执行价格请以各船公司订舱系统或合同报价为准。</div>
-  </div>
-
-  <!-- 服务覆盖矩阵 -->
-  <div class="card" style="margin-bottom:16px;">
-    <h2>主要船公司中美航线服务覆盖矩阵</h2>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th class="text-left">船公司</th>
-            <th>华东→美西</th>
-            <th>华东→美东</th>
-            <th>华南→美西</th>
-            <th>华南→美东</th>
-            <th>华北→美西</th>
-            <th>华北→美东</th>
-            <th>备注</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="background:#eff6ff;font-weight:600;">
-            <td class="text-left">COSCO</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>全港口覆盖，优先保舱</td>
-          </tr>
-          <tr>
-            <td class="text-left">OOCL</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>与COSCO协同</td>
-          </tr>
-          <tr>
-            <td class="text-left">MSC</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>2M联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">Maersk</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>2M联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">CMA CGM</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>Ocean联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">Evergreen</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>Ocean联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">Hapag-Lloyd</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>THE联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">ONE</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>THE联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">Yang Ming</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>–</td>
-            <td>–</td>
-            <td>THE联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">ZIM</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>–</td>
-            <td>–</td>
-            <td>–</td>
-            <td>独立运营</td>
-          </tr>
-          <tr>
-            <td class="text-left">HMM</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>周班</td>
-            <td>–</td>
-            <td>–</td>
-            <td>THE联盟</td>
-          </tr>
-          <tr>
-            <td class="text-left">Wan Hai</td>
-            <td>周班</td>
-            <td>–</td>
-            <td>周班</td>
-            <td>–</td>
-            <td>–</td>
-            <td>–</td>
-            <td>近洋为主</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="note">注："周班"表示该航线每周有固定班次服务；"–"表示非主要服务港口或公开信息不足。</div>
-  </div>
-
-  <!-- 来源列表 -->
-  <div class="card" style="margin-bottom:16px;">
-    <h2>数据来源与参考</h2>
-    <ol class="source-list">
-      <li>上海航运交易所（SSE）— SCFI、CCFI指数</li>
-      <li>Drewry World Container Index（WCI）— 全球集装箱运价指数</li>
-      <li>Descartes Systems — 美国集装箱进口统计数据</li>
-      <li>各船公司官方公告 — COSCO、Maersk、MSC、CMA CGM、Hapag-Lloyd、ONE、Yang Ming、ZIM、Evergreen、Wan Hai</li>
-      <li>DHL / SeaVantage — 全球港口拥堵监测</li>
-      <li>新华社 / 海事服务网CNSS — 红海及中东航运局势</li>
-      <li>美国贸易代表办公室（USTR）— 301关税公告</li>
-      <li>新浪财经、网易财经、雪球 — 市场资讯与运价分析</li>
-    </ol>
-    <div class="note">免责声明：本仪表板数据来源于公开信息整理，仅供参考，不构成投资或订舱建议。实际运价、舱位及附加费请以船公司官方订舱系统或代理报价为准。</div>
-  </div>
-
-  <footer>
-    中美集装箱运输监控仪表板 &copy; 2026 &nbsp;|&nbsp; 每日12:00自动更新 &nbsp;|&nbsp; 数据仅供行业参考
-  </footer>
-</div>
-
-<script src="assets/charts.js"></script>
+  <script src="assets/charts.js"></script>
 </body>
 </html>
