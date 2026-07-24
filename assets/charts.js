@@ -31,7 +31,7 @@
     return {
       backgroundColor: 'transparent',
       textStyle: BASE_TEXT_STYLE,
-      grid: { left: 60, right: 30, top: 50, bottom: 50, containLabel: false },
+      grid: { left: 55, right: 25, top: 35, bottom: 45, containLabel: false },
       tooltip: {
         trigger: 'axis',
         backgroundColor: 'rgba(255,255,255,0.95)',
@@ -50,7 +50,7 @@
   if (scfiCcfiEl) {
     var scfiCcfiChart = echarts.init(scfiCcfiEl);
     var scfiCcfiOpt = baseOption();
-    scfiCcfiOpt.title = { text: 'SCFI / CCFI 周度走势', left: 'center', textStyle: { fontSize: 13, fontWeight: 600, color: COLORS.text } };
+    // title 由 HTML h3 提供，不在 ECharts 内重复设置
     scfiCcfiOpt.xAxis = Object.assign({ type: 'category', data: ['1/3','1/10','1/17','1/24','2/7','2/14','2/21','2/28','3/7','3/14','3/21','3/28','4/4','4/11','4/18','4/24','5/2','5/9','5/16','5/23','5/30','6/6','6/13','6/20','6/27','7/3','7/10','7/17'], axisLabel: { rotate: 45, fontSize: 10 }, axisLine: AXIS_LINE_STYLE, axisTick: { alignWithLabel: true } }, {});
     scfiCcfiOpt.yAxis = { type: 'value', name: '指数', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10 }, axisLine: AXIS_LINE_STYLE, splitLine: SPLIT_LINE_STYLE };
     scfiCcfiOpt.legend.data = ['SCFI', 'CCFI'];
@@ -89,7 +89,7 @@
   if (spotRatesEl) {
     var spotRatesChart = echarts.init(spotRatesEl);
     var spotOpt = baseOption();
-    spotOpt.title = { text: '上海至美西/美东现货运价 ($/FEU)', left: 'center', textStyle: { fontSize: 13, fontWeight: 600, color: COLORS.text } };
+    // title 由 HTML h3 提供，不在 ECharts 内重复设置
     spotOpt.xAxis = Object.assign({ type: 'category', data: ['1月','2月','3月','4月','5月','6月','7月(截至7/17)'], axisLabel: { fontSize: 10 }, axisLine: AXIS_LINE_STYLE, axisTick: { alignWithLabel: true } }, {});
     spotOpt.yAxis = { type: 'value', name: '$/FEU', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10, formatter: '${value}' }, axisLine: AXIS_LINE_STYLE, splitLine: SPLIT_LINE_STYLE };
     spotOpt.legend.data = ['美西 (PSW)', '美东 (USEC)'];
@@ -120,7 +120,7 @@
   if (usChinaEl) {
     var usChinaChart = echarts.init(usChinaEl);
     var usChinaOpt = baseOption();
-    usChinaOpt.title = { text: '美国自中国进口月度 TEU', left: 'center', textStyle: { fontSize: 13, fontWeight: 600, color: COLORS.text } };
+    // title 由 HTML h3 提供，不在 ECharts 内重复设置
     usChinaOpt.xAxis = Object.assign({ type: 'category', data: ['2025/7','2025/8','2025/9','2025/10','2025/11','2025/12','2026/1','2026/2','2026/3','2026/4','2026/5','2026/6'], axisLabel: { rotate: 45, fontSize: 10 }, axisLine: AXIS_LINE_STYLE, axisTick: { alignWithLabel: true } }, {});
     usChinaOpt.yAxis = { type: 'value', name: 'TEU (千)', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'K'; } }, axisLine: AXIS_LINE_STYLE, splitLine: SPLIT_LINE_STYLE };
     usChinaOpt.legend.data = ['美国自中国进口'];
@@ -154,11 +154,12 @@
   if (shareTotalEl) {
     var shareTotalChart = echarts.init(shareTotalEl);
     var shareOpt = baseOption();
-    shareOpt.title = { text: '中国份额 vs 美国总进口', left: 'center', textStyle: { fontSize: 13, fontWeight: 600, color: COLORS.text } };
+    // title 由 HTML h3 提供，不在 ECharts 内重复设置
+    shareOpt.grid = { left: 55, right: 50, top: 35, bottom: 45, containLabel: false };
     shareOpt.xAxis = Object.assign({ type: 'category', data: ['2025/7','2025/8','2025/9','2025/10','2025/11','2025/12','2026/1','2026/2','2026/3','2026/4','2026/5','2026/6'], axisLabel: { rotate: 45, fontSize: 10 }, axisLine: AXIS_LINE_STYLE, axisTick: { alignWithLabel: true } }, {});
     shareOpt.yAxis = [
-      { type: 'value', name: '美国总进口 TEU (千)', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'K'; } }, axisLine: AXIS_LINE_STYLE, splitLine: SPLIT_LINE_STYLE },
-      { type: 'value', name: '中国份额 %', nameTextStyle: { fontSize: 10 }, min: 25, max: 40, axisLabel: { fontSize: 10, formatter: '{value}%' }, axisLine: AXIS_LINE_STYLE, splitLine: { show: false } }
+      { type: 'value', name: '总进口(千TEU)', nameTextStyle: { fontSize: 9 }, axisLabel: { fontSize: 9, formatter: function(v) { return (v/1000).toFixed(0) + 'K'; } }, axisLine: AXIS_LINE_STYLE, splitLine: SPLIT_LINE_STYLE },
+      { type: 'value', name: '份额%', nameTextStyle: { fontSize: 9 }, min: 25, max: 40, axisLabel: { fontSize: 9, formatter: '{value}%' }, axisLine: AXIS_LINE_STYLE, splitLine: { show: false } }
     ];
     shareOpt.legend.data = ['美国总进口 TEU', '中国份额'];
     shareOpt.series = [
