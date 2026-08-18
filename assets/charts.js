@@ -16,7 +16,7 @@
 
   var charts = [];
 
-  /* Shared tooltip style */
+  /* Shared tooltip style (浅色玻璃框) */
   var tipStyle = {
     backgroundColor: 'rgba(255,255,255,0.95)',
     borderColor: '#e2e8f0',
@@ -24,7 +24,7 @@
     extraCssText: 'box-shadow:0 4px 16px rgba(15,23,42,.12);border-radius:10px;'
   };
 
-  /* Default grid */
+  /* Default grid (top:35, 无需为 ECharts 内置标题留空间) */
   var gridDefault = { left: 55, right: 25, top: 35, bottom: 45, containLabel: false };
   var gridDual = { left: 55, right: 50, top: 35, bottom: 45, containLabel: false };
 
@@ -43,7 +43,8 @@
     if (!el) return;
     var chart = echarts.init(el, null, { renderer: 'svg' });
     var months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月'];
-    var scfi = [1498.94, 1200.85, 1593.95, 1883.78, 2002.09, 2070.36, 3205.97, 3315.69];
+    /* SCFI 月度均值；6-8月为 Opencontainer 周度整理的月内均值（8月为截至8/17部分月） */
+    var scfi = [1498.94, 1200.85, 1593.95, 1883.78, 2002.09, 3018.26, 3172.18, 3356.29];
     var ccfi = [1197.27, 1084.95, 1120.61, 1221.80, null, null, null, 1846.96];
 
     chart.setOption({
@@ -85,6 +86,11 @@
               { type: 'max', name: '最高', itemStyle: { color: accent } }
             ],
             label: { fontSize: 10, color: '#fff' }
+          },
+          markLine: {
+            silent: true, symbol: 'none',
+            lineStyle: { color: warn, type: 'dotted', width: 1 },
+            data: [{ xAxis: 7, label: { show: true, formatter: '8月部分月', color: warn, fontSize: 10 } }]
           }
         },
         {
@@ -104,13 +110,15 @@
     var el = document.getElementById('chart-spot-rates');
     if (!el) return;
     var chart = echarts.init(el, null, { renderer: 'svg' });
-    var periods = ['4月', '5月下旬', '6月下旬', '7月末', '7/31(SCFI)'];
-    var usWest = [2566, 3473, 5750, 5739, 6629];
-    var usEast = [3543, 4597, 7149, 7578, 9054];
-    /* Forecast Aug-Sep */
-    var fcLabels = ['8月(预测)', '9月(预测)'];
-    var fcWest = [6600, 6200];
-    var fcEast = [9500, 9000];
+    /* 实际值：4月、5月下旬、6月下旬、7/31(SCFI)、8/6(Xeneta)、8/14(新浪/SCFI) */
+    var periods = ['4月', '5月下旬', '6月下旬', '7/31(SCFI)', '8/6(Xeneta)', '8/14(SCFI)'];
+    var usWest = [2566, 3473, 5750, 6629, 6824, 6484];
+    var usEast = [3543, 4597, 7149, 9054, 9988, 9290];
+    /* 预测：9月 */
+    var fcLabels = ['9月(预测)'];
+    var fcWest = [6100];
+    var fcEast = [8900];
+    var nullPad = usWest.map(function() { return null; });
 
     chart.setOption({
       tooltip: Object.assign({ trigger: 'axis', valueFormatter: function(v){ return v == null ? '—' : '$' + Number(v).toLocaleString() + '/FEU'; } }, tipStyle),
@@ -146,12 +154,12 @@
         },
         {
           name: '美西(预测)', type: 'line', smooth: true, symbol: 'diamond', symbolSize: 6,
-          data: [null, null, null, null, null].concat(fcWest),
+          data: nullPad.concat(fcWest),
           lineStyle: { width: 2, color: accent, type: 'dashed' }, itemStyle: { color: accent, opacity: 0.7 }
         },
         {
           name: '美东(预测)', type: 'line', smooth: true, symbol: 'diamond', symbolSize: 6,
-          data: [null, null, null, null, null].concat(fcEast),
+          data: nullPad.concat(fcEast),
           lineStyle: { width: 2, color: danger, type: 'dashed' }, itemStyle: { color: danger, opacity: 0.7 }
         }
       ]
@@ -167,8 +175,9 @@
     if (!el) return;
     var chart = echarts.init(el, null, { renderer: 'svg' });
     var months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
-    var teu = [770965, 728562, null, 680647, 816197, 814474, 873129];
-    var share = [null, 34.8, null, 29.9, 33.6, 33.9, 34.8];
+    /* 1-7月均为 Descartes 公布值（已补全3月） */
+    var teu = [771093, 728562, 711652, 680778, 816197, 814474, 873129];
+    var share = [33.3, 34.8, 30.2, 29.9, 33.6, 33.9, 34.8];
 
     chart.setOption({
       tooltip: Object.assign({ trigger: 'axis' }, tipStyle),
@@ -202,9 +211,10 @@
               { offset: 0, color: accent }, { offset: 1, color: accent2 }
             ]}, borderRadius: [4, 4, 0, 0]
           },
-          markLine: {
-            silent: true, symbol: 'none', lineStyle: { color: muted, type: 'dotted', width: 1 },
-            data: [{ yAxis: 0, label: { show: false } }]
+          label: {
+            show: true, position: 'top', color: muted, fontSize: 9, formatter: function(p){
+              return (p.value/1000).toFixed(0)+'k';
+            }
           }
         },
         {
@@ -225,7 +235,8 @@
     if (!el) return;
     var chart = echarts.init(el, null, { renderer: 'svg' });
     var months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月'];
-    var teu = [2318075, 2093422, null, 2278478, 2428758, 2400627, 2508310];
+    /* 已补全3月 Descartes 公布值 */
+    var teu = [2318722, 2093422, 2353611, 2277965, 2428758, 2400627, 2508310];
 
     chart.setOption({
       tooltip: Object.assign({ trigger: 'axis', valueFormatter: function(v){ return v == null ? '公开信息不足' : Number(v).toLocaleString() + ' TEU'; } }, tipStyle),
@@ -243,15 +254,12 @@
       series: [{
         type: 'bar', data: teu, barWidth: '50%',
         itemStyle: {
-          color: function(p) {
-            return p.dataIndex === 2 ? rule : { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [
-              { offset: 0, color: accent2 }, { offset: 1, color: 'rgba(6,182,212,.3)' }
-            ]};
-          },
+          color: { type: 'linear', x:0,y:0,x2:0,y2:1, colorStops: [
+            { offset: 0, color: accent2 }, { offset: 1, color: 'rgba(6,182,212,.3)' }
+          ]},
           borderRadius: [4, 4, 0, 0]
         },
         label: { show: true, position: 'top', color: muted, fontSize: 10, formatter: function(p){
-          if (p.value == null) return 'N/A';
           return (p.value/1000).toFixed(0)+'k';
         }}
       }]
@@ -337,6 +345,7 @@
     var el = document.getElementById('chart-surcharge');
     if (!el) return;
     var chart = echarts.init(el, null, { renderer: 'svg' });
+    /* 2026年8月跨太平洋 GRI/PSS（40ft口径申报目标价） */
     var carriers = ['COSCO', 'CMA CGM', 'Evergreen', 'HMM', 'Yang Ming', 'ZIM', 'ONE', 'Maersk'];
     var amounts = [2000, 2000, 3000, 3000, 2000, 2000, 2000, 2000];
     var types = ['GRI', 'GRI', 'GRI', 'GRI', 'GRI', 'GRI', 'PSS', 'PSS'];
@@ -346,7 +355,7 @@
         trigger: 'axis', axisPointer: { type: 'shadow' },
         formatter: function(params) {
           var p = params[0];
-          return p.name + '<br/>金额：$' + p.value.toLocaleString() + '/FEU<br/>类型：' + types[p.dataIndex];
+          return p.name + '<br/>金额：$' + p.value.toLocaleString() + '/FEU<br/>类型：' + types[p.dataIndex] + '（8月）';
         }
       }, tipStyle),
       grid: { left: 55, right: 25, top: 35, bottom: 45, containLabel: false },
